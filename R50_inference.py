@@ -9,9 +9,9 @@ import copy
 from imagenetv2_pytorch import ImageNetV2Dataset
 from utils.model import *
 
-batch_size = 2048
-img_size = 224
-nesting_start=3
+BATCH_SIZE = 2048
+IMG_SIZE = 224
+NESTING_START = 3
 
 activation = {}
 fwd_pass_x_list = []
@@ -64,12 +64,8 @@ def dump_feature_vector(config_name, random_sample_dim):
             random_y = y_fwd_pass
             print("Writing %s to disk with dim [%d x %d]" % (str(config_name), X_fwd_pass.shape[0], args.fixed_feature))
 
-        if args.dataset_name == 'imagenet4m':
-            np.save('/mnt/disks/imagenet4m/fwd_pass_csv/'+str(config_name)+'-X.npy', random_X)
-            np.save('/mnt/disks/imagenet4m/fwd_pass_csv/'+str(config_name)+'-y.npy', random_y)
-        else:
-            np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-X.npy', random_X)
-            np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-y.npy', random_y)
+        np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-X.npy', random_X)
+        np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-y.npy', random_y)
 
 def fwd_pass(data_loader, model, config, gpu, distributed, dataset, random_sample_dim):
     model.eval()
@@ -102,17 +98,7 @@ def main():
         normalize,
     ])
 
-    # Not used for retrieval, DB and query should have same distribution
-    '''
-    train_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        normalize,
-    ])
-    '''
-
-    model = Model(args.distributed, args.gpu, args.nesting, args.single_head, args.fixed_feature, use_blurpool=1)
+    model = Model(args.distributed, args.gpu, args.NESTING, args.single_head, args.fixed_feature, use_blurpool=1)
     temp = copy.copy(model)
 
     if args.distributed:
@@ -128,12 +114,12 @@ def main():
     device = f'cuda{args.gpu}'
 
     if(args.dataset_name == 'imagenet1k'):
-        train_path = 'path_to_imagenet1k_train'
-        test_path =  'path_to_imagenet1k_test'
+        train_path = 'path_to_imagenet1k_train/'
+        test_path =  'path_to_imagenet1k_test/'
         train_dataset = datasets.ImageFolder(train_path, transform = test_transform)
         test_dataset = datasets.ImageFolder(test_path, transform = test_transform)
     elif(args.dataset_name == 'imagenetv2'):
-        train_dataset = None
+        train_dataset = None # V2 has only a test set
         test_dataset = ImageNetV2Dataset("matched-frequency", transform = test_transform)
     elif(args.dataset_name == 'imagenet4m'):
         train_path = 'path_to_imagenet4k_train/'
@@ -145,15 +131,15 @@ def main():
 
     # train loader for database
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=False,
+        train_dataset, batch_size=BATCH_SIZE, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
     #val loader for query set
     val_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=False,
+        test_dataset, batch_size=BATCH_SIZE, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
-    config = args.dataset_name+"_val_nesting"+str(args.nesting)+"_sh"+str(args.single_head)+"_ff"+str(args.fixed_feature) ; print("Config: " + config)
+    config = args.dataset_name +"_val_nesting" + str(args.NESTING) + "_sh" + str(args.single_head) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
     fwd_pass(val_loader, model, config, args.gpu, args.distributed, args.dataset_name, args.random_sample_dim)
 
     # re-initialize lists for test dataset
@@ -164,7 +150,7 @@ def main():
     fwd_pass_y_list = []
     fwd_pass_paths_list = []
 
-    config = args.dataset_name+"_train_nesting"+str(args.nesting)+"_sh"+str(args.single_head)+"_ff"+str(args.fixed_feature) ; print("Config: " + config)
+    config = args.dataset_name +"_train_nesting" + str(args.NESTING) + "_sh" + str(args.single_head) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
     fwd_pass(train_loader, model, config, args.gpu, args.distributed, args.dataset_name, args.random_sample_dim)
 
     if args.distributed:
