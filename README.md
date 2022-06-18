@@ -33,6 +33,17 @@ export WRITE_DIR=/your/path/here/
 # - quality=90 JPEGs
 .train_and_eval/train/write_imagenet.sh 500 0.50 90
 ```
+
+#### Robustness Datasets
+
+We evaluate our trained models on 4 robustness datasets- ImageNet-V2/A/R/Sketch. Please refer to the respective repositories to download the datasets and additional documentation. 
+
+1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
+2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
+3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
+4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
+
+
 ## Matryoshka Linear Layer
 `MRL.py` provides MRL linear layer, and it can be instantiated very easily using the following
 ```
