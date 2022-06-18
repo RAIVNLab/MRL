@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#This code is directly taken from FFCV-Imagenet https://github.com/libffcv/ffcv-imagenet 
+
 write_dataset () {
     write_path=$WRITE_DIR/${1}_${2}_${3}_${4}.ffcv
     echo "Writing ImageNet ${1} dataset to ${write_path}"

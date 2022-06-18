@@ -12,3 +12,4 @@ webdataset
 torchmetrics
 imagenetv2_pytorch
 grad-cam
+skimage

@@ -1,3 +1,8 @@
+'''
+This code is directly taken from FFCV-Imagenet https://github.com/libffcv/ffcv-imagenet 
+and modified for MRL purpose.
+'''
+
 import torch as ch
 from torch.cuda.amp import GradScaler
 from torch.cuda.amp import autocast
@@ -145,8 +150,7 @@ class ImageNetTrainer:
         self.all_params = get_current_config(); 
         self.gpu = gpu
         self.efficient = efficient
-        self.mrl = mrl
-        self.nesting = (self.efficient or self.mrl)
+        self.nesting = (self.efficient or mrl)
         self.nesting_start = nesting_start
         self.nesting_list = [2**i for i in range(self.nesting_start, 12)] if self.nesting else None
         self.fixed_feature=fixed_feature

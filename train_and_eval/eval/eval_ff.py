@@ -1,3 +1,7 @@
+'''
+Code to evaluate Fixed Feature baseline on different validation benchmarks. 
+It manually iterates over nesting list; loads corresponding models and evaluate them.
+'''
 import torch 
 import torchvision
 import torch.nn.functional as F
@@ -9,7 +13,7 @@ from timeit import default_timer as timer
 import math
 import numpy as np
 import sys
-from NestingLayer import *
+from MRL import *
 from imagenetv2_pytorch import ImageNetV2Dataset
 from torch.utils.data import DataLoader
 import pandas as pd
@@ -43,10 +47,6 @@ elif args.dataset == 'A':
 elif args.dataset == 'sketch':
 	print("Loading Imagenet-Sketch dataset")
 	dataset = torchvision.datasets.ImageFolder('sketch/', transform=t)
-elif args.dataset == 'O':
-	print("Loading true Imagenet-O val set")
-	dataset_o = torchvision.datasets.ImageFolder('imagenet-o/', transform=t)
-	dataset_in = torchvision.datasets.ImageFolder('imagenet_val_for_imagenet_o_ood_/', transform=t)
 elif args.dataset == 'R':
 	print("Loading true Imagenet-R val set")
 	dataset = torchvision.datasets.ImageFolder('imagenet-r_/', transform=t)
@@ -54,8 +54,7 @@ else:
 	print("Loading true Imagenet 1K val set")
 	dataset = torchvision.datasets.ImageFolder('val/', transform=t)
 
-if not (args.dataset == 'O'):
-	dataloader = torch.utils.data.DataLoader(dataset, batch_size=256, num_workers=12, shuffle=False)
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=256, num_workers=12, shuffle=False)
 
 for ff in [2**i for i in range(3,12)]:
 	print("Rep. Size: ", ff)
@@ -67,45 +66,22 @@ for ff in [2**i for i in range(3,12)]:
 	model = model.cuda()
 	model.eval()
 
-	if args.dataset == 'O':
-		# We need to get both in distribution and OOD perforamce 
-		dataloader = torch.utils.data.DataLoader(dataset_in, batch_size=256, num_workers=12, shuffle=False)
-		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= False, imagenetO=  True)
-
-		confidence_in, predictions_in = torch.max(softmax_probs, dim=-1)
-		correct = predictions_in == gt.cuda()
-		in_score = -confidence_in
-
-		dataloader = torch.utils.data.DataLoader(dataset_o, batch_size=128, num_workers=12, shuffle=False)
-		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= False, imagenetO=  True)
-
-		confidence_out, predictions_out = torch.max(softmax_probs, dim=-1)
-		correct_out = predictions_out == gt.cuda()
-		out_score = -confidence_out
-
-		aurocs, auprs, fprs = [], [], []
-		measures = calibration_tools.get_measures(out_score.cpu().numpy(), in_score.cpu().numpy())
-		aurocs = measures[0]; auprs = measures[1]; fprs = measures[2]
-		calibration_tools.print_measures_old(aurocs, auprs, fprs, method_name='MSP')
-	else:
-		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= args.dataset == 'A', imagenetO=  False, imagenetR=args.dataset == 'R')
+	_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
+			model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= args.dataset == 'A', imagenetR=args.dataset == 'R')
 
 
-		confidence, predictions = torch.max(softmax_probs, dim=-1)
-		max_uncertainity=0
-		worst_class=None
-		sum_=0
-		for k in m_score_dict:
-			m_score_dict[k]= (m_score_dict[k].mean()).item()
-			sum_+=m_score_dict[k]
-			if m_score_dict[k]>max_uncertainity:
-				worst_class=k
-				max_uncertainity=m_score_dict[k]	
+	confidence, predictions = torch.max(softmax_probs, dim=-1)
+	max_uncertainity=0
+	worst_class=None
+	sum_=0
+	for k in m_score_dict:
+		m_score_dict[k]= (m_score_dict[k].mean()).item()
+		sum_+=m_score_dict[k]
+		if m_score_dict[k]>max_uncertainity:
+			worst_class=k
+			max_uncertainity=m_score_dict[k]	
 
-		tqdm.write('    Evaluated {} images'.format(num_images))
-		tqdm.write('    Top-1 accuracy: {:.2f}%'.format(100.0 * top1_acc))
-		tqdm.write('    Top-5 accuracy: {:.2f}%'.format(100.0 * top5_acc))
-		tqdm.write('    Total time: {:.1f}  (average time per image: {:.2f} ms)'.format(total_time, 1000.0 * total_time / num_images))
+	tqdm.write('    Evaluated {} images'.format(num_images))
+	tqdm.write('    Top-1 accuracy: {:.2f}%'.format(100.0 * top1_acc))
+	tqdm.write('    Top-5 accuracy: {:.2f}%'.format(100.0 * top5_acc))
+	tqdm.write('    Total time: {:.1f}  (average time per image: {:.2f} ms)'.format(total_time, 1000.0 * total_time / num_images))

@@ -1,3 +1,6 @@
+'''
+This code is directly taken from FFCV-Imagenet https://github.com/libffcv/ffcv-imagenet 
+'''
 from torch.utils.data import Subset
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField

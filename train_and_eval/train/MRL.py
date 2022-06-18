@@ -2,6 +2,10 @@ import torch
 import torch.nn as nn
 from typing import Type, Any, Callable, Union, List, Optional
 
+'''
+Loss function for Matryoshka Representation Learning 
+'''
+
 class Matryoshka_CE_Loss(nn.Module):
 	def __init__(self, relative_importance=None, **kwargs):
 		super(NestedCELoss, self).__init__()
@@ -50,3 +54,19 @@ class MRL_Linear_Layer(nn.Module):
 		return nesting_logits
 
 
+class FixedFeatureLayer(nn.Linear):
+    '''
+    For our fixed feature baseline, we just replace the classification layer with the following. 
+    It effectively just look at the first "in_features" for the classification. 
+    '''
+
+    def __init__(self, in_features, out_features, **kwargs):
+        super(FixedFeatureLayer, self).__init__(in_features, out_features, **kwargs)
+
+    def forward(self, x):
+        if not (self.bias is None):
+            out = torch.matmul(x[:, :self.in_features], self.weight.t()) + self.bias
+        else:
+            out = torch.matmul(x[:, :self.in_features], self.weight.t())
+        return out
+        

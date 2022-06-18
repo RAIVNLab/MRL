@@ -50,3 +50,19 @@ class MRL_Linear_Layer(nn.Module):
 		return nesting_logits
 
 
+class FixedFeatureLayer(nn.Linear):
+     '''
+     For our fixed feature baseline, we just replace the classification layer with the following. 
+     It effectively just look at the first "in_features" for the classification. 
+     '''
+
+     def __init__(self, in_features, out_features, **kwargs):
+          super(FixedFeatureLayer, self).__init__(in_features, out_features, **kwargs)
+
+     def forward(self, x):
+          if not (self.bias is None):
+               out = torch.matmul(x[:, :self.in_features], self.weight.t()) + self.bias
+          else:
+               out = torch.matmul(x[:, :self.in_features], self.weight.t())
+          return out
+          
