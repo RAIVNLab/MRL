@@ -12,7 +12,7 @@ python eval_MRL.py --path [path to weight checkpoint, need to be .pt file] --dat
 
 #### [GradCAM.ipynb](GradCAM.ipynb)
 
-This notebook visualizes model attribution for each image. We beforehand store each image as torch tensor, arranged class-wise, and therefore please do so before running this script. 
+This notebook visualizes model attribution for each image. We beforehand store each image as torch tensor, arranged class-wise, and therefore please do so before running this script. Note that the example in the notebook is not the one shown in the paper.
 
 #### [Cascade Performance Paper.ipynb](<./Cascade Performance Paper.ipynb>)
 This notebook evaluates our greedy scheme based on maximum probability thresholding for model cascading. Make sure to have softmax predictions stored for given model under consideration. 
