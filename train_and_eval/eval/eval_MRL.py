@@ -1,6 +1,10 @@
 '''
 Code to evaluate MRL models on different validation benchmarks. 
 '''
+import sys 
+sys.path.append("../../") # adding root folder to the path
+
+
 import torch 
 import torchvision
 import torch.nn.functional as F
@@ -11,7 +15,6 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 import math
 import numpy as np
-import sys
 from MRL import *
 from imagenetv2_pytorch import ImageNetV2Dataset
 from torch.utils.data import DataLoader
