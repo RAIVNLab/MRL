@@ -9,7 +9,7 @@ from timeit import default_timer as timer
 import math
 import numpy as np
 import sys
-from NestingLayer import *
+from MRL import *
 from imagenetv2_pytorch import ImageNetV2Dataset
 from torch.utils.data import DataLoader
 import pandas as pd
