@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 
+#TODO: delete this file
 CONFIG = 'mrl' # one of ['mrl', 'mrl_e', 'ff']
 NESTING = CONFIG in ['mrl', 'mrl_e']
 ROOT_DIR = "path_to_db_and_query_files/" + CONFIG + "/"

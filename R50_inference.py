@@ -1,3 +1,11 @@
+'''
+Native PyTorch code for ResNet-50 inference, primarily utilized to create database and query arrays
+for retrieval.
+1. Supported datasets: ImageNet-1K, ImageNetv2, ImageNet-4K
+2. Supported models: mrl, mrl-e, ff-k
+# TODO: merge with pytorch eval code with retrieval_inference flag
+'''
+
 import torch
 from torch.cuda.amp import autocast
 from torchvision import transforms, datasets
@@ -19,13 +27,13 @@ fwd_pass_y_list = []
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_path', default=None, help='path to model to load from disk', type=str, required=True)
-parser.add_argument('--dataset_name', default='cub200', help='dimension of last linear layer', type=str, required=True)
+parser.add_argument('--dataset_name', default='imagenet1k', help='supported imagenet1k, imagenetv2, imagenet4k', type=str, required=True)
 parser.add_argument('--distributed', default=0, help='is model DistributedDataParallel')
 parser.add_argument('--gpu', default=0, help='available gpu device')
 parser.add_argument('--world_size', default=1, help='distributed world size')
-parser.add_argument('--nesting', default=0, help='was model trained with nesting', type=int)
-parser.add_argument('--single_head', default=0, help='is model single head nested', type=int)
-parser.add_argument('--fixed_feature', default=2048, help='dimension of last linear layer', type=int)
+parser.add_argument('--mrl', default=0, help='mrl model flag', type=int)
+parser.add_argument('--efficient', default=0, help='mrl-e model flag', type=int)
+parser.add_argument('--fixed_feature', default=2048, help='ff model dimension of last linear layer', type=int)
 parser.add_argument('--workers', default=12, help='workers for dataloader', type=int)
 parser.add_argument('--random_sample_dim', default=4202000, help='number of random samples to slice from val set', type=int)
 args = parser.parse_args()
@@ -64,8 +72,8 @@ def dump_feature_vector(config_name, random_sample_dim):
             random_y = y_fwd_pass
             print("Writing %s to disk with dim [%d x %d]" % (str(config_name), X_fwd_pass.shape[0], args.fixed_feature))
 
-        np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-X.npy', random_X)
-        np.save('/mnt/disks/retrieval/fwd_pass_csv/'+str(config_name)+'-y.npy', random_y)
+        np.save('path_to_retrieval_arrays/'+str(config_name)+'-X.npy', random_X)
+        np.save('path_to_retrieval_arrays/'+str(config_name)+'-y.npy', random_y)
 
 def fwd_pass(data_loader, model, config, gpu, distributed, dataset, random_sample_dim):
     model.eval()
@@ -81,8 +89,6 @@ def fwd_pass(data_loader, model, config, gpu, distributed, dataset, random_sampl
                     images, target = images.to(gpu), target.to(gpu)
                     output = model(images)
                     append_fwd_pass_info_to_list(activation['avgpool'].squeeze(), target)
-                    if i_batch % 20 == 0:
-                        print("Finished processing: %f %%" % (i_batch / len(data_loader) * 100))
                 dump_feature_vector(config, random_sample_dim)
 
 def main():
@@ -121,7 +127,7 @@ def main():
     elif(args.dataset_name == 'imagenetv2'):
         train_dataset = None # V2 has only a test set
         test_dataset = ImageNetV2Dataset("matched-frequency", transform = test_transform)
-    elif(args.dataset_name == 'imagenet4m'):
+    elif(args.dataset_name == 'imagenet4k'):
         train_path = 'path_to_imagenet4k_train/'
         test_path =  'path_to_imagenet4k_test/'
         train_dataset = datasets.ImageFolder(train_path, transform = test_transform)
@@ -139,7 +145,7 @@ def main():
         test_dataset, batch_size=BATCH_SIZE, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
-    config = args.dataset_name +"_val_nesting" + str(args.NESTING) + "_sh" + str(args.single_head) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
+    config = args.dataset_name +"_val_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
     fwd_pass(val_loader, model, config, args.gpu, args.distributed, args.dataset_name, args.random_sample_dim)
 
     # re-initialize lists for test dataset
@@ -150,7 +156,7 @@ def main():
     fwd_pass_y_list = []
     fwd_pass_paths_list = []
 
-    config = args.dataset_name +"_train_nesting" + str(args.NESTING) + "_sh" + str(args.single_head) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
+    config = args.dataset_name +"_train_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.fixed_feature) ; print("Config: " + config)
     fwd_pass(train_loader, model, config, args.gpu, args.distributed, args.dataset_name, args.random_sample_dim)
 
     if args.distributed:
