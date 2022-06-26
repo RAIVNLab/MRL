@@ -6,24 +6,24 @@ This repository contains the code for training and evaluating Matryoshka Represe
 1. Set up
 2. Matryoshka Linear Layer
 3. Training ResNet50 Models
-4. Evaluating Trained Models
-5. Evaluating pre-trained checkpoints
+4. Inference
+5. Model Analysis
 5. Retrieval Performance
 
 
 ## Set Up
-First pip install the requirements file in this directory:
+Pip install the requirements file in this directory:
 ```
 pip install -r requirements.txt
 ```
 We use PyTorch Distributed Data Parallel shared over 2 A100 GPUs and FFCV for the dataloader. FFCV uses 8 A100 GPUs, therefore we linearly downscale the learning rate by 4.
 
 ### Preparing the dataset.
-
-Generate ImageNet FFCV dataset from standard imagenet train set with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset)):
+Download the standard Imagenet-1k train and val set, and store the validation set in root directory with folder named `val/`. Using same code snippet as [FFCV](https://github.com/libffcv/ffcv-imagenet), generate the dataset from standard imagenet train set with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset)):
 
 ```bash
 # Required environmental variables for the script:
+cd train/
 export IMAGENET_DIR=/path/to/pytorch/format/imagenet/directory/
 export WRITE_DIR=/your/path/here/
 
@@ -31,18 +31,17 @@ export WRITE_DIR=/your/path/here/
 # - 500px side length maximum
 # - 50% JPEG encoded, 90% raw pixel values
 # - quality=90 JPEGs
-.train_and_eval/train/write_imagenet.sh 500 0.50 90
+./write_imagenet.sh 500 0.50 90
 ```
 
 #### Robustness Datasets
 
-We evaluate our trained models on 4 robustness datasets- ImageNet-V2/A/R/Sketch. Please refer to the respective repositories to download the datasets and additional documentation. 
+We evaluate our trained models on 4 robustness datasets- ImageNet-V2/A/R/Sketch. For these datasets, we don't need FFCV, therefore, we just use PyTorch. Please refer to the respective repositories for additional documentation and download the datasets in the root directory. 
 
 1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
 2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
 3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
 4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
-
 
 ## Matryoshka Linear Layer
 `MRL.py` provides MRL linear layer, and it can be instantiated very easily using the following
@@ -52,8 +51,8 @@ fc_layer = MRL_Linear_Layer(nesting_list, num_classes=1000, efficient=efficient)
 ```
 Where, `nesting_list` is the list of dimensions we want to nest on, `num_classes` is the number of output feature and efficient flag if we want to do MRL-E.
 
-## Training ResNet50 models
-First of all change the directory to `train_and_eval/train`. While training, we dump  model ckpts, training logs and run command inside a folder. 
+## [Training ResNet50 models](train/)
+`cd train/`. While training, we dump  model ckpts, training logs and run command inside a folder. `$WRITE_DIR` is same variable that we used while creating the dataset. 
 
 ### Training Fixed Feature Baseline
 
@@ -88,24 +87,21 @@ By default, we start nesting from 8 dimensions (That is 2^3). In case we want to
 ```
 --model.nesting_start=4
 ```
-## Evaluating Trained Models
-First of all change the directory to `train_and_eval/eval`. We have two different scripts to evaluate the Fixed Feature (FF) baseline and MRL models, respectively.
 
-### Evaluating FF baseline
-In paper we only consider fixed `nesting_list=[8, 16, 32, 64, 128, 256, 512, 1024, 2048]`, therefore we hardcode evaluating on those FF mdoels such that the name for each folder with ckpt is `sh=0_mh=0_nesting_start=3_fixed_feature={dim}/` Please change the name accordingly in while evaluating your models. Furthermore, make sure that launch directory has validation sets corresponding to each dataset (V1/V2/A/R/Sketch). To evaluate, run the following command. 
+## [Inference on Trained Models](inference/)
 
-```
-python eval_ff.py --path [path to ckpt folders] --dataset [V2/A/Sketch/R/V1]
-```
-If `dataset` flag is not passed, it will evaluate on standard ImageNet validation set. 
+### Classification performance
+`cd inference/` . To evaluate the model, run the following command; argument in brackets are optional. To evaluate the Fixed Feature Baseline, just pass `--rep_size <dim>` to evaluate particular size dim. Script is also capable of using pytorch evaluation of standard imagenet-1k validation set (V1). To evaluate our uploaded checkpoints, please pass `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). 
 
-### Evaluating MRL models 
-```
-python eval_MRL.py --path [path to weight checkpoint, need to be .pt file] --dataset [V2/A/Sketch/R/V1] (--efficient)
+```python
+python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> [--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt]
 ```
 
-## [Evaluating pre-trained checkpoints](eval_ckpts/)
-We also provide path to the saved checkpoints which were used to generate the results in our paper. However, the MRL Linear layer had a slightly different re-factored [code](eval_ckpts/NestingLayer.py), therefore we have separate scripts to directly evaluate them. Saved model ckpts can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). Please click [here](eval_ckpts/) to evaluate pre-trained checkpoints for MRL models. 
+In paper we only consider rep sizes in  `[8, 16, 32, 64, 128, 256, 512, 1024, 2048]`, therefore to evaluate on other rep. sizes change the variable `NESTING_LIST` in file `pytorch_eval.py`. 
+
+
+## [Model Analysis](model_analysis/)
+`cd model_analysis/` Here we provide 4 jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to its documentation [here](model_analysis/README.md).  
 
 ## Retrieval Performance
 
