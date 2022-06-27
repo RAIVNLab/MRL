@@ -1,15 +1,18 @@
 # Model Analysis
-Here provide jupyter notebooks, which contains performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound.  
+We provide Jupyter notebooks, which contain performance visualization via GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound.  
 
 #### [GradCAM.ipynb](GradCAM.ipynb)
+This notebook visualizes model attribution for each image. As required preprocessing, we store each image as a torch tensor, arranged class-wise. Note that the example in the notebook is not the one shown in the paper.
 
-This notebook visualizes model attribution for each image. We beforehand store each image as torch tensor, arranged class-wise, and therefore please do so before running this script. Note that the example in the notebook is not the one shown in the paper.
+**TODO @ GB** please add a comment why and how it is different from paper
 
-#### [Cascade Performance Paper.ipynb](<./Cascade Performance Paper.ipynb>)
-This notebook evaluates our greedy scheme based on maximum probability thresholding for model cascading. Make sure to have softmax predictions stored for given model under consideration. 
+#### [Cascade Performance](<./Cascade_Performance_Paper.ipynb>)
+This notebook evaluates our greedy scheme for model cascading, based on maximum probability thresholding. This notebook requires the softmax predictions for the model under consideration. 
 
-#### [Custom SuperClass Performance.ipynb](<./Custom SuperClass Performance.ipynb>)
-Based on wordnet heirarchy, we evaluate our MRL model on 30 randomly chosen superclasses. The code is based on [robustness package](https://github.com/MadryLab/robustness). 	  
+#### [Custom SuperClass Performance](<./Custom_SuperClass_Performance.ipynb>)
+Based on WordNet hierarchy, we evaluate our MRL model on 30 randomly chosen superclasses. The code is based on this [robustness](https://github.com/MadryLab/robustness) project. 	  
 
-#### [Oracle Upper Bound Performance.ipynb](<./Oracle Upper Bound Performance.ipynb>)
-We compute oracle performance (the maximum possible accuracy) for MRL with ideal routing. 
+**TODO @ GB:** add WordNet link?
+
+#### [Oracle Upper Bound Performance](<./Oracle_Upper_Bound_Performance.ipynb>)
+We compute oracle performance, i.e. the maximum possible achievable accuracy for MRL with ideal routing for appropriate rep. size.
