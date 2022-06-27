@@ -1,7 +1,7 @@
 # [Matryoshka Representations for Adaptive Deployment](https://arxiv.org/abs/2205.13147)
 Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi
 
-This repository contains the code for training and evaluating Matryoshka Representation with ResNet-50 backbone, along with visualizations. Training code is built upon [FFCV](https://github.com/libffcv/ffcv-imagenet) modified for MRL. The repository is organized as follows:
+This repository contains the code for training and evaluating Matryoshka Representation with ResNet-50 backbone, along with visualizations. Training code is built upon [FFCV](https://github.com/libffcv/ffcv-imagenet) modified for Matryoshka Representations Learning (MRL). The repository is organized as follows:
 
 1. Set up
 2. Matryoshka Linear Layer
@@ -19,7 +19,7 @@ pip install -r requirements.txt
 We use PyTorch Distributed Data Parallel shared over 2 A100 GPUs and FFCV for the dataloader. FFCV uses 8 A100 GPUs, therefore we linearly downscale the learning rate by 4.
 
 ### Preparing the dataset.
-Download the standard Imagenet-1k train and val set, and store the validation set in root directory with folder named `val/`. Using same code snippet as [FFCV](https://github.com/libffcv/ffcv-imagenet), generate the dataset from standard imagenet train set with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset)):
+Download the standard Imagenet-1K train and val set, and store the validation set in root directory with folder named `val/`. Using same code snippet as [FFCV](https://github.com/libffcv/ffcv-imagenet), generate the dataset from standard imagenet train set with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset)):
 
 ```bash
 # Required environmental variables for the script:
@@ -52,7 +52,8 @@ fc_layer = MRL_Linear_Layer(nesting_list, num_classes=1000, efficient=efficient)
 Where, `nesting_list` is the list of dimensions we want to nest on, `num_classes` is the number of output feature and efficient flag if we want to do MRL-E.
 
 ## [Training ResNet50 models](train/)
-`cd train/`. While training, we dump  model ckpts, training logs and run command inside a folder. `$WRITE_DIR` is same variable that we used while creating the dataset. 
+`cd train/`
+While training, we dump  model ckpts, training logs and run command inside a folder. `$WRITE_DIR` is same variable that we used while creating the dataset. 
 
 ### Training Fixed Feature Baseline
 
@@ -91,7 +92,8 @@ By default, we start nesting from 8 dimensions (That is 2^3). In case we want to
 ## [Inference on Trained Models](inference/)
 
 ### Classification performance
-`cd inference/` . To evaluate the model, run the following command; argument in brackets are optional. To evaluate the Fixed Feature Baseline, just pass `--rep_size <dim>` to evaluate particular size dim. Script is also capable of using pytorch evaluation of standard imagenet-1k validation set (V1). To evaluate our uploaded checkpoints, please pass `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). 
+`cd inference/` 
+To evaluate the model, run the following command; argument in brackets are optional. To evaluate the Fixed Feature Baseline, just pass `--rep_size <dim>` to evaluate particular size dim. Script is also capable of using pytorch evaluation of standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints, please pass `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). 
 
 ```python
 python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> [--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt]
@@ -101,7 +103,8 @@ In paper we only consider rep sizes in  `[8, 16, 32, 64, 128, 256, 512, 1024, 20
 
 
 ## [Model Analysis](model_analysis/)
-`cd model_analysis/` Here we provide 4 jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to its documentation [here](model_analysis/README.md).  
+`cd model_analysis/` 
+Here we provide 4 jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to its documentation [here](model_analysis/README.md).  
 
 ## Retrieval Performance
 
