@@ -53,6 +53,7 @@ Where, `nesting_list` is the list of dimensions we want to nest on, `num_classes
 
 ## [Training ResNet50 models](train/)
 `cd train/`
+
 While training, we dump  model ckpts, training logs and run command inside a folder. `$WRITE_DIR` is same variable that we used while creating the dataset. 
 
 ### Training Fixed Feature Baseline
@@ -93,6 +94,7 @@ By default, we start nesting from 8 dimensions (That is 2^3). In case we want to
 
 ### Classification performance
 `cd inference/` 
+
 To evaluate the model, run the following command; argument in brackets are optional. To evaluate the Fixed Feature Baseline, just pass `--rep_size <dim>` to evaluate particular size dim. Script is also capable of using pytorch evaluation of standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints, please pass `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). 
 
 ```python
@@ -104,6 +106,7 @@ In paper we only consider rep sizes in  `[8, 16, 32, 64, 128, 256, 512, 1024, 20
 
 ## [Model Analysis](model_analysis/)
 `cd model_analysis/` 
+
 Here we provide 4 jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to its documentation [here](model_analysis/README.md).  
 
 ## Retrieval Performance
