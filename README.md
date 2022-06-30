@@ -1,7 +1,13 @@
 # [Matryoshka Representations for Adaptive Deployment](https://arxiv.org/abs/2205.13147)
-Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi
+*Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi*
 
-This repository contains code to train, evaluate, and analyze Matryoshka Representations with a ResNet-50 backbone. The training pipeline utilizes efficient [FFCV](https://github.com/libffcv/ffcv-imagenet) dataloaders modified for Matryoshka Representation Learning (MRL). The repository is organized as follows:
+Learned representations are used in multiple downstream tasks like web-scale search & classification. However, they are flat & rigid -- Information is diffused across dimensions and cannot be adaptively deployed without large post-hoc overhead. We fix both of these issues with MRL🪆. 
+
+<p align="center">
+<img src="./images/mrl-teaser.jpeg" width="512"/>
+</p>
+
+This repository contains code to train, evaluate, and analyze Matryoshka Representations with a ResNet50 backbone. The training pipeline utilizes efficient [FFCV](https://github.com/libffcv/ffcv-imagenet) dataloaders modified for Matryoshka Representation Learning (MRL). The repository is organized as follows:
 
 1. Set up
 2. Matryoshka Linear Layer
@@ -51,6 +57,10 @@ fc_layer = MRL_Linear_Layer(nesting_list, num_classes=1000, efficient=efficient)
 Where `nesting_list` is the list of representation sizes we wish to train on, `num_classes` is the number of output features, and the `efficient` flag is to train MRL-E.
 
 ## [Training ResNet50 models](train/)
+<p align="center">
+<img src="./images/mrl-r50-accuracy.jpeg" width="784"/>
+</p>
+
 We use PyTorch Distributed Data Parallel shared over 2 A100 GPUs and FFCV dataloaders. FFCV utilizes 8 A100 GPUs, therefore we linearly downscale the learning rate by 4 to compensate. We utilize the `rn50_40_epochs.yaml` configuration file provided by FFCV to train MRL ResNet50 models for 40 epochs.
 While training, we dump  model ckpts and training logs by default. `$WRITE_DIR` is same variable used to create the dataset. 
 
@@ -59,7 +69,10 @@ While training, we dump  model ckpts and training logs by default. `$WRITE_DIR` 
 ```bash 
 export CUDA_VISIBLE_DEVICES=0,1
 
-python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.fixed_feature=2048 --data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv --data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 --dist.world_size=2 --training.distributed=1 --lr.lr=0.425
+python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.fixed_feature=2048 \
+--data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv \
+--data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 \
+--dist.world_size=2 --training.distributed=1 --lr.lr=0.425
 ```
 
 ### Training MRL model
@@ -67,7 +80,10 @@ python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.
 ```bash 
 export CUDA_VISIBLE_DEVICES=0,1
 
-python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.mrl=1 --data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv --data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 --dist.world_size=2 --training.distributed=1 --lr.lr=0.425
+python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.mrl=1 \
+--data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv \
+--data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 \
+--dist.world_size=2 --training.distributed=1 --lr.lr=0.425
 ```
 
 ### Training MRL-E model
@@ -75,7 +91,10 @@ python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.
 ```bash 
 export CUDA_VISIBLE_DEVICES=0,1
 
-python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.efficient=1 --data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv --data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 --dist.world_size=2 --training.distributed=1 --lr.lr=0.425
+python train_imagenet.py --config-file rn50_configs/rn50_40_epochs.yaml --model.efficient=1 \
+--data.train_dataset=$WRITE_DIR/train_500_0.50_90.ffcv --data.val_dataset=$WRITE_DIR/val_500_uncompressed.ffcv \
+--data.num_workers=12 --data.in_memory=1 --logging.folder=trainlogs --logging.log_level=1 \
+--dist.world_size=2 --training.distributed=1 --lr.lr=0.425
 ```
 
 By default, we start nesting from rep. size = 8 (i.e. $2^3$). We provide flexibility in starting nesting, for example from rep. size = 16, with the `nesting_start` flag as: 
@@ -91,14 +110,16 @@ To evaluate our models, run the following command (arguments in brackets are opt
 
 ```python
 cd inference
-python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> [--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt]
+
+python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> \
+[--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt]
 ```
 
-In the paper we only consider $rep size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. 
+In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. 
 
 
 ## [Model Analysis](model_analysis/)
-`cd model_analysis/` 
+`cd model_analysis` 
 
 Here we provide four jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to detailed documentation [here](model_analysis/README.md).  
 
