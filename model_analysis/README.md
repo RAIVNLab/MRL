@@ -9,7 +9,7 @@ This notebook visualizes model attribution for each image. We beforehand store e
 This notebook evaluates our greedy scheme based on maximum probability thresholding for model cascading. Make sure to have softmax predictions stored for given model under consideration. 
 
 #### [Custom SuperClass Performance.ipynb](<./Custom SuperClass Performance.ipynb>)
-Based on wordnet heirarchy, we evaluate our MRL model on 30 randomly chosen superclasses. The code is based on [robustness package](https://github.com/MadryLab/robustness). 	  
+Based on [wordnet](https://www.nltk.org/howto/wordnet.html) heirarchy, we evaluate our MRL model on 30 randomly chosen superclasses. The code is based on [robustness package](https://github.com/MadryLab/robustness). 	  
 
 #### [Oracle Upper Bound Performance.ipynb](<./Oracle Upper Bound Performance.ipynb>)
 We compute oracle performance (the maximum possible accuracy) for MRL with ideal routing. 
