@@ -123,8 +123,12 @@ In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 102
 
 Here we provide four jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to detailed documentation [here](model_analysis/README.md).  
 
-## Retrieval Performance
-We carry out image retrieval on ImageNet-1K, ImageNetV2 and ImageNet-4K, which we created as an out-of-distribution dataset. A detailed description of the retrieval pipeline is provided [here](retrieval/README.md)
+## [Retrieval Performance](retrieval/)
+We carry out image retrieval on ImageNet-1K, ImageNetV2 and ImageNet-4K, which we created as an out-of-distribution dataset. A detailed description of the retrieval pipeline is provided [here](retrieval/README.md).
+### ImageNet-4K
+We created the ImageNet-4K dataset by selecting 4,202 classes, non-overlapping with ImageNet1K, from ImageNet-21K with 1,050 or more examples. The train set contains 1,000 examples and
+the query/validation set contains 50 examples per class totalling to ∼4.2M and ∼200K respectively.
+The list of images curated together to construct ImageNet-4K will be updated here shortly.
 
 ## Citation
 If you find this project useful in your research, please consider citing:

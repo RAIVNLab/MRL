@@ -24,9 +24,17 @@ In an attempt to remove supervision in choosing $D_r$ and $D_s$, we utilize **Fu
 repeated re-ranking and shortlisting with a series of increasing capacity representations. For example, retrieval with $D_r = 8$ followed by a funnel with Rerank Cascade *= [16, 32, 64, 128, 2048]* and Shortlist Cascade *= [200, 100, 50, 25, 10]* would be saved as  
 `8dim-cascade[16,32,64,128,2048]_shortlist[200,100,50,25,10]_imagenet1k_exactl2.csv`
 
+<p align="center">
+<img src="../images/mrl-r50-map-vs-mflops.jpeg" width="1024"/>
+</p>
+
 ## Metric Computation
 We compute mAP@k, precision@k, recall@k, and top-k accuracy of the k-NN shortlist for various values of $k$, as shown in
 `compute_metrics.ipynb`, with flags for model configuration, dataset, index type, and retrieval configuration required. The code loads database labels
 `imagenet1k_train_mrl1_e0_ff2048-y.npy` and query labels `imagenet1k_val_mrl1_e0_ff2048-y.npy` alongside the k-NN shortlist generated via FAISS retrieval 
 (`neighbors/exactl2_16dim-2048-NN_imagenet1k.csv` as in the example above) or 
 after reranking in the steps above.
+
+<p align="center">
+<img src="../images/mrl-r50-retrieval-mAP.png" width="512"/>
+</p>
