@@ -38,6 +38,7 @@ parser.add_argument('--dataset', type=str, default='V1', help='Benchmarks')
 # retrieval args
 parser.add_argument('--retrieval', default=0, help='flag for image retrieval array dumps')
 parser.add_argument('--random_sample_dim', default=4202000, help='number of random samples to slice from retrieval database', type=int)
+parser.add_argument('--retrieval_array_path', default='', help='path to save database and query arrays for retrieval', type=str)
 
 args = parser.parse_args()
 
@@ -87,10 +88,10 @@ if args.retrieval == 0:
 
 	if args.mrl:
 		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt, logits = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=NESTING_LIST, tta=args.tta, imagenetA= args.dataset == 'A', imagenetR=args.dataset == 'R')
+				model, dataloader, show_progress_bar=True, nesting_list=NESTING_LIST, tta=args.tta, imagenetA=args.dataset == 'A', imagenetR=args.dataset == 'R')
 	else:
 		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= args.dataset == 'A', imagenetR=args.dataset == 'R')
+				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA=args.dataset == 'A', imagenetR=args.dataset == 'R')
 
 	tqdm.write('Evaluated {} images'.format(num_images))
 	confidence, predictions = torch.max(softmax_probs, dim=-1)
@@ -109,28 +110,29 @@ if args.retrieval == 0:
 
 # Image Retrieval Inference
 elif args.retrieval == 1:
-	if (args.dataset_name == '1K'):
+	if args.dataset_name == '1K':
 		train_path = 'path_to_imagenet1k_train/'
 		test_path = 'path_to_imagenet1k_test/'
-		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
-		test_dataset = datasets.ImageFolder(test_path, transform=test_transform)
-	elif (args.dataset_name == 'V2'):
+		train_dataset = datasets.ImageFolder(train_path, transform=t)
+		test_dataset = datasets.ImageFolder(test_path, transform=t)
+	elif args.dataset_name == 'V2':
 		train_dataset = None  # V2 has only a test set
-		test_dataset = ImageNetV2Dataset("matched-frequency", transform=test_transform)
-	elif (args.dataset_name == '4K'):
+		test_dataset = ImageNetV2Dataset("matched-frequency", transform=t)
+	elif args.dataset_name == '4K':
 		train_path = 'path_to_imagenet4k_train/'
 		test_path = 'path_to_imagenet4k_test/'
-		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
-		test_dataset = datasets.ImageFolder(test_path, transform=test_transform)
+		train_dataset = datasets.ImageFolder(train_path, transform=t)
+		test_dataset = datasets.ImageFolder(test_path, transform=t)
 	else:
 		print("Error: unsupported dataset!")
+		train_dataset = test_dataset = None
 
 	database_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 	queryset_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 
 	config = args.dataset_name + "_val_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset_name, args.random_sample_dim)
+	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)
 	config = args.dataset_name + "_train_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim)
+	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)
