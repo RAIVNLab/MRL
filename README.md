@@ -1,13 +1,13 @@
 # [Matryoshka Representations for Adaptive Deployment](https://arxiv.org/abs/2205.13147)
-*Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi*
+_Aditya Kusupati*, Gantavya Bhatt*, Aniket Rege*, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi_
 
-Learned representations are used in multiple downstream tasks like web-scale search & classification. However, they are flat & rigid -- Information is diffused across dimensions and cannot be adaptively deployed without large post-hoc overhead. We fix both of these issues with MRL🪆. 
+Learned representations are used in multiple downstream tasks like web-scale search & classification. However, they are flat & rigid -- Information is diffused across dimensions and cannot be adaptively deployed without large post-hoc overhead. We fix both of these issues with **Matryoshka Representation Learning** (MRL)🪆. 
 
 <p align="center">
 <img src="./images/mrl-teaser.jpeg" width="512"/>
 </p>
 
-This repository contains code to train, evaluate, and analyze Matryoshka Representations with a ResNet50 backbone. The training pipeline utilizes efficient [FFCV](https://github.com/libffcv/ffcv-imagenet) dataloaders modified for Matryoshka Representation Learning (MRL). The repository is organized as follows:
+This repository contains code to train, evaluate, and analyze Matryoshka Representations with a ResNet50 backbone. The training pipeline utilizes efficient [FFCV](https://github.com/libffcv/ffcv-imagenet) dataloaders modified for MRL. The repository is organized as follows:
 
 1. Set up
 2. Matryoshka Linear Layer
@@ -38,15 +38,6 @@ export WRITE_DIR=/your/path/here/
 # - quality=90 JPEGs
 ./write_imagenet.sh 500 0.50 90
 ```
-
-#### Robustness Datasets
-
-We evaluate our trained models on four robustness datasets: ImageNetV2/A/R/Sketch. Note that for evaluation, we utilized PyTorch dataloaders. Please refer to their respective repositories for additional documentation and download the datasets in the root directory. 
-
-1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
-2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
-3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
-4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
 
 ## Matryoshka Linear Layer
 We make only a minor modification to the ResNet50 architecture via the MRL linear layer, defined in `MRL.py`, which can be instantiated as:
@@ -118,6 +109,16 @@ python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> \
 In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. 
 
 
+#### Robustness Datasets
+
+We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/Sketch. Note that for evaluation, we utilized PyTorch dataloaders. Please refer to their respective repositories for additional documentation and download the datasets in the root directory. 
+
+1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
+2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
+3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
+4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
+
+
 ## [Model Analysis](model_analysis/)
 `cd model_analysis` 
 
@@ -133,11 +134,10 @@ The list of images curated together to construct ImageNet-4K will be updated her
 ## Citation
 If you find this project useful in your research, please consider citing:
 ```
-@article{Kusupati2022MatryoshkaRF,
+@article{kusupati2022matryoshka,
   title={Matryoshka Representations for Adaptive Deployment},
-  author={Aditya Kusupati and Gantavya Bhatt and Aniket Rege and Matthew Wallingford and Aditya Sinha and Vivek Ramanujan and William Howard-Snyder and Kaifeng Chen and Sham M. Kakade and Prateek Jain and Ali Farhadi},
-  journal={ArXiv},
-  year={2022},
-  volume={abs/2205.13147}
+  author={Kusupati, Aditya and Bhatt, Gantavya and Rege, Aniket and Wallingford, Matthew and Sinha, Aditya and Ramanujan, Vivek and Howard-Snyder, William and Chen, Kaifeng and Kakade, Sham and Jain, Prateek and others},
+  journal={arXiv preprint arXiv:2205.13147},
+  year={2022}
 }
 ```
