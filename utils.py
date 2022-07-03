@@ -8,7 +8,6 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 import math
 import numpy as np
-from NestingLayer import *
 from imagenet_id import indices_in_1k_a, indices_in_1k_o, indices_in_1k_r
 
 
@@ -50,11 +49,12 @@ def evaluate_model(model, dataloader, show_progress_bar=True, notebook_progress_
 
 
 def evaluate_model_ff(model, data_loader, show_progress_bar=False, notebook_progress_bar=False, tta=False, imagenetA=False, imagenetO=False, imagenetR=False):
+
 	torch.backends.cudnn.benchmark = True
 	num_images = 0
 	num_top1_correct = 0
 	num_top5_correct = 0
-	predictions = []; m_score_dict={}; softmax=[]; gt=[]
+	predictions = []; m_score_dict={}; softmax=[]; gt=[]; all_logits=[]
 	start = timer()
 	with torch.no_grad():
 		enumerable = enumerate(data_loader)
@@ -98,13 +98,14 @@ def evaluate_model_ff(model, data_loader, show_progress_bar=False, notebook_prog
 				if correct_class in output_index[jj, :]:
 					num_top5_correct += 1
 			num_images += len(target)
+			all_logits.append(logits.cpu())
 	end = timer()
 	predictions = np.vstack(predictions)
 	for k in m_score_dict.keys():
 		m_score_dict[k]=torch.cat(m_score_dict[k])
 
 	assert predictions.shape == (num_images, 5)
-	return predictions, num_top1_correct / num_images, num_top5_correct / num_images, end - start, num_images, m_score_dict, torch.cat(softmax, dim=0), torch.cat(gt, dim=0)
+	return predictions, num_top1_correct / num_images, num_top5_correct / num_images, end - start, num_images, m_score_dict, torch.cat(softmax, dim=0), torch.cat(gt, dim=0), torch.cat(all_logits, dim=0)
 
 
 def evaluate_model_nesting(model, data_loader, show_progress_bar=False, notebook_progress_bar=False, nesting_list=[2**i for i in range(3, 12)], tta=False, imagenetA= False, imagenetO=False, imagenetR=False):
