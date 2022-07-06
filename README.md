@@ -119,16 +119,6 @@ We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/
 4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
 
 
-#### Robustness Datasets
-
-We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/Sketch. Note that for evaluation, we utilized PyTorch dataloaders. Please refer to their respective repositories for additional documentation and download the datasets in the root directory. 
-
-1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
-2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
-3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
-4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
-
-
 ## [Model Analysis](model_analysis/)
 `cd model_analysis` 
 
