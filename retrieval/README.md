@@ -6,8 +6,8 @@ We utilize a native [PyTorch inference](../inference/pytorch_eval.py) to generat
 retrieval on ImageNet-4K with an MRL pretrained model (trained with PyTorch DDP) is provided below:
 
 ```
-python pytorch_inference.py --retrieval=1 --path=pretrained_model_path/ --retrieval_array_path=output_path/ \
---distributed=1 --dataset=imagenet4k --mrl=1 --efficient=0 
+python ../inference/pytorch_inference.py --retrieval=1 --path=pretrained_model_path/ \
+--retrieval_array_path=output_path/ --distributed=1 --dataset=imagenet4k --mrl=1 --efficient=0
 ```
 This will generate train (database) and val (query) arrays for the vector representations and labels for ImageNet-4K, ie
 `imagenet1k_val_mrl1_e0_ff2048-X.npy`, `imagenet1k_val_mrl1_e0_ff2048-y.npy`, `imagenet1k_train_mrl1_e0_ff2048-X.npy`, and `imagenet1k_train_mrl1_e0_ff2048-y.npy`, which will be saved to disk in the `output_path/` directory.

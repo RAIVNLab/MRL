@@ -21,7 +21,7 @@ BATCH_SIZE = 256
 IMG_SIZE = 256
 CENTER_CROP_SIZE = 224
 NESTING_LIST=[2**i for i in range(3, 12)]
-ROOT="../" # location of validation sets. 
+ROOT="../" # path to validation datasets
 
 parser=ArgumentParser()
 
@@ -66,7 +66,7 @@ model = model.cuda()
 model.eval()
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-t = transforms.Compose([
+test_transform = transforms.Compose([
 				transforms.Resize(IMG_SIZE),
 				transforms.CenterCrop(CENTER_CROP_SIZE),
 				transforms.ToTensor(),
@@ -76,19 +76,19 @@ t = transforms.Compose([
 if args.retrieval == 0:
 	if args.dataset == 'V2':
 		print("Loading Robustness Dataset")
-		dataset = ImageNetV2Dataset("matched-frequency", transform=t)
+		dataset = ImageNetV2Dataset("matched-frequency", transform=test_transform)
 	elif args.dataset == 'A':
 		print("Loading true Imagenet-A val set")
-		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-a/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-a/', transform=test_transform)
 	elif args.dataset == 'R':
 		print("Loading true Imagenet-R val set")
-		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-r_/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-r_/', transform=test_transform)
 	elif args.dataset == 'sketch':
 		print("Loading Imagenet-Sketch dataset")
-		dataset = torchvision.datasets.ImageFolder(ROOT+'sketch/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'sketch/', transform=test_transform)
 	else:
 		print("Loading true Imagenet 1K val set")
-		dataset = torchvision.datasets.ImageFolder(ROOT+'val/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'val/', transform=test_transform)
 
 	dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 
@@ -131,18 +131,18 @@ if args.retrieval == 0:
 
 # Image Retrieval Inference
 elif args.retrieval == 1:
-	if (args.dataset_name == '1K'):
+	if args.dataset_name == '1K':
 		train_path = 'path_to_imagenet1k_train/'
-		train_dataset = datasets.ImageFolder(train_path, transform=t)
-		test_dataset = datasets.ImageFolder(ROOT+"val/", transform=t)
-	elif (args.dataset_name == 'V2'):
+		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
+		test_dataset = datasets.ImageFolder(ROOT+"val/", transform=test_transform)
+	elif args.dataset_name == 'V2':
 		train_dataset = None  # V2 has only a test set
-		test_dataset = ImageNetV2Dataset("matched-frequency", transform=t)
-	elif (args.dataset_name == '4K'):
+		test_dataset = ImageNetV2Dataset("matched-frequency", transform=test_transform)
+	elif args.dataset_name == '4K':
 		train_path = 'path_to_imagenet4k_train/'
 		test_path = 'path_to_imagenet4k_test/'
-		train_dataset = datasets.ImageFolder(train_path, transform=t)
-		test_dataset = datasets.ImageFolder(test_path, transform=t)
+		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
+		test_dataset = datasets.ImageFolder(test_path, transform=test_transform)
 	else:
 		print("Error: unsupported dataset!")
 
@@ -154,4 +154,4 @@ elif args.retrieval == 1:
 	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)
 	config = args.dataset_name + "_train_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path) 
+	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)

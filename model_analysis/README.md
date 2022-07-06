@@ -1,5 +1,5 @@
 # Model Analysis
-We provide Jupyter notebooks, which contain performance visualization via [GradCAM](https://github.com/jacobgil/pytorch-grad-cam) images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please be sure to have predictions and softmax probabilities saved beforehand (using our save flags). In addition, for adaptive classification using cascades, use `--tta` flag while saving the above. 
+We provide Jupyter notebooks which contain performance visualization via [GradCAM](https://github.com/jacobgil/pytorch-grad-cam) images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please be sure to have predictions and softmax probabilities saved beforehand, using the appropriate `save-*` flags from `../inference/pytorch_inference.py`. Additionally, for adaptive classification using cascades, use the `--tta` flag in the above script. 
 
 #### [GradCAM](GradCAM.ipynb)
 This notebook visualizes model attribution for each image. As required preprocessing, we store each image as a torch tensor, arranged class-wise. This notebook illustrates that using smaller representation size for classification can result in model confusion between classes within the same superclass (*e.g.* Rock Python vs Boa Constrictor as in Figure 9.b below).
