@@ -97,16 +97,26 @@ By default, we start nesting from rep. size = 8 (i.e. $2^3$). We provide flexibi
 ## [Inference on Trained Models](inference/)
 
 ### Classification performance
-To evaluate our models, run the following command (arguments in brackets are optional). To evaluate the Fixed Feature Baseline, pass `--rep_size <dim>` to evaluate particular size dim. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints, please pass `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). 
+To evaluate our models, run the following command (arguments in brackets are optional). To evaluate the Fixed Feature Baseline, pass `--rep_size <dim>` to evaluate particular representation size. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints, please use `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). `save_*` and `tta` (test time augmentation) flags will be useful for downstream [model analysis](model_analysis).
 
 ```python
 cd inference
 
-python pytorch_eval.py --path <final_weigth.pt> --dataset <V2/A/Sketch/R/V1> \
-[--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt]
+python pytorch_inference.py --path <final_weight.pt> --dataset <V2/A/Sketch/R/V1> \
+[--tta] [--mrl] [--efficient] [--rep_size <dim>] [--old_ckpt] [--save_logits] \
+[--save_softmax] [--save_gt] [--save_predictions]
 ```
 
 In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. 
+
+#### Robustness Datasets
+
+We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/Sketch. Note that for evaluation, we utilized PyTorch dataloaders. Please refer to their respective repositories for additional documentation and download the datasets in the root directory. 
+
+1. [ImageNetV2_pytorch](https://github.com/modestyachts/ImageNetV2_pytorch)
+2. [ImageNetA](https://github.com/hendrycks/natural-adv-examples)
+3. [ImageNetR](https://github.com/hendrycks/imagenet-r)
+4. [ImageNet-Sketch](https://github.com/HaohanWang/ImageNet-Sketch)
 
 
 #### Robustness Datasets

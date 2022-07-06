@@ -21,6 +21,7 @@ BATCH_SIZE = 256
 IMG_SIZE = 256
 CENTER_CROP_SIZE = 224
 NESTING_LIST=[2**i for i in range(3, 12)]
+ROOT="../" # path to validation datasets
 
 parser=ArgumentParser()
 
@@ -35,9 +36,15 @@ parser.add_argument('--distributed', default=0, help='is model DistributedDataPa
 # dataset/eval args
 parser.add_argument('--tta', action='store_true', help='Test Time Augmentation Flag')
 parser.add_argument('--dataset', type=str, default='V1', help='Benchmarks')
+parser.add_argument('--save_logits', action='store_true', help='To save logits for model analysis')
+parser.add_argument('--save_softmax', action='store_true', help='To save softmax_probs for model analysis')
+parser.add_argument('--save_gt', action='store_true', help='To save ground truth for model analysis')
+parser.add_argument('--save_predictions', action='store_true', help='To save predicted labels for model analysis')
 # retrieval args
 parser.add_argument('--retrieval', default=0, help='flag for image retrieval array dumps')
 parser.add_argument('--random_sample_dim', default=4202000, help='number of random samples to slice from retrieval database', type=int)
+parser.add_argument('--retrieval_array_path', default='', help='path to save database and query arrays for retrieval', type=str)
+
 
 args = parser.parse_args()
 
@@ -59,7 +66,7 @@ model = model.cuda()
 model.eval()
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-t = transforms.Compose([
+test_transform = transforms.Compose([
 				transforms.Resize(IMG_SIZE),
 				transforms.CenterCrop(CENTER_CROP_SIZE),
 				transforms.ToTensor(),
@@ -69,28 +76,28 @@ t = transforms.Compose([
 if args.retrieval == 0:
 	if args.dataset == 'V2':
 		print("Loading Robustness Dataset")
-		dataset = ImageNetV2Dataset("matched-frequency", transform=t)
+		dataset = ImageNetV2Dataset("matched-frequency", transform=test_transform)
 	elif args.dataset == 'A':
 		print("Loading true Imagenet-A val set")
-		dataset = torchvision.datasets.ImageFolder('imagenet-a/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-a/', transform=test_transform)
 	elif args.dataset == 'R':
 		print("Loading true Imagenet-R val set")
-		dataset = torchvision.datasets.ImageFolder('imagenet-r_/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'imagenet-r_/', transform=test_transform)
 	elif args.dataset == 'sketch':
 		print("Loading Imagenet-Sketch dataset")
-		dataset = torchvision.datasets.ImageFolder('sketch/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'sketch/', transform=test_transform)
 	else:
 		print("Loading true Imagenet 1K val set")
-		dataset = torchvision.datasets.ImageFolder('val/', transform=t)
+		dataset = torchvision.datasets.ImageFolder(ROOT+'val/', transform=test_transform)
 
 	dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 
 	if args.mrl:
 		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt, logits = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=NESTING_LIST, tta=args.tta, imagenetA= args.dataset == 'A', imagenetR=args.dataset == 'R')
+				model, dataloader, show_progress_bar=True, nesting_list=NESTING_LIST, tta=args.tta, imagenetA=args.dataset == 'A', imagenetR=args.dataset == 'R')
 	else:
-		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt = evaluate_model(
-				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA= args.dataset == 'A', imagenetR=args.dataset == 'R')
+		_, top1_acc, top5_acc, total_time, num_images, m_score_dict, softmax_probs, gt, logits = evaluate_model(
+				model, dataloader, show_progress_bar=True, nesting_list=None, tta=args.tta, imagenetA=args.dataset == 'A', imagenetR=args.dataset == 'R')
 
 	tqdm.write('Evaluated {} images'.format(num_images))
 	confidence, predictions = torch.max(softmax_probs, dim=-1)
@@ -107,17 +114,31 @@ if args.retrieval == 0:
 		tqdm.write('    Top-5 accuracy: {:.2f}%'.format(100.0 * top5_acc))
 		tqdm.write('    Total time: {:.1f}  (average time per image: {:.2f} ms)'.format(total_time, 1000.0 * total_time / num_images))
 
+
+	# saving torch tensor for model analysis... 
+	if args.save_logits or args.save_softmax or args.save_predictions:
+		save_string = f"mrl={args.mrl}_efficient={args.efficient}_dataset={args.dataset}_tta={args.tta}"
+		if args.save_logits:
+			torch.save(logits, save_string+"_logits.pth")
+		if args.save_predictions:
+			torch.save(predictions, save_string+"_predictions.pth")
+		if args.save_softmax:
+			torch.save(softmax_probs, save_string+"_softmax.pth")
+
+	if args.save_gt:
+		torch.save(gt, f"gt_dataset={args.dataset}.pth")
+
+
 # Image Retrieval Inference
 elif args.retrieval == 1:
-	if (args.dataset_name == '1K'):
+	if args.dataset_name == '1K':
 		train_path = 'path_to_imagenet1k_train/'
-		test_path = 'path_to_imagenet1k_test/'
 		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
-		test_dataset = datasets.ImageFolder(test_path, transform=test_transform)
-	elif (args.dataset_name == 'V2'):
+		test_dataset = datasets.ImageFolder(ROOT+"val/", transform=test_transform)
+	elif args.dataset_name == 'V2':
 		train_dataset = None  # V2 has only a test set
 		test_dataset = ImageNetV2Dataset("matched-frequency", transform=test_transform)
-	elif (args.dataset_name == '4K'):
+	elif args.dataset_name == '4K':
 		train_path = 'path_to_imagenet4k_train/'
 		test_path = 'path_to_imagenet4k_test/'
 		train_dataset = datasets.ImageFolder(train_path, transform=test_transform)
@@ -130,7 +151,7 @@ elif args.retrieval == 1:
 
 	config = args.dataset_name + "_val_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset_name, args.random_sample_dim)
+	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)
 	config = args.dataset_name + "_train_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim)
+	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset_name, args.random_sample_dim, args.retrieval_array_path)
