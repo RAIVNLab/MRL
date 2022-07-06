@@ -19,5 +19,5 @@ This notebook evaluates our greedy scheme for model cascading, based on maximum 
 Based on [WordNet](https://www.nltk.org/howto/wordnet.html) hierarchy, we evaluate the MRL model on 30 randomly chosen superclasses. The code is based on the [MadryLab robustness package](https://github.com/MadryLab/robustness). 	  
 
 #### [Oracle Upper Bound](<./Oracle_Upper_Bound_Performance.ipynb>)
-We compute oracle performance, *i.e.* the maximum possible achievable accuracy for MRL with ideal routing for appropriate rep. size.
+While overall accuracy increases with a gradual increase in capacity, we observe that certain instances and classes are more accurate when evaluated with lower dimensions. Therefore, for each input image, there is an ideal rep. size which leads to the maximum possible achievable accuracy for MRL (or the oracle performance), which we compute in this notebook.
 
