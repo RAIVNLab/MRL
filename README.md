@@ -14,7 +14,7 @@ This repository contains code to train, evaluate, and analyze Matryoshka Represe
 3. Training ResNet50 Models
 4. Inference
 5. Model Analysis
-5. Retrieval Performance
+5. Retrieval
 
 
 ## Set Up
@@ -124,8 +124,11 @@ We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/
 
 Here we provide four jupyter notebooks which contain performance visualization such as GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to detailed documentation [here](model_analysis/README.md).  
 
-## [Retrieval Performance](retrieval/)
-We carry out image retrieval on ImageNet-1K, ImageNetV2 and ImageNet-4K, which we created as an out-of-distribution dataset. A detailed description of the retrieval pipeline is provided [here](retrieval/README.md).
+## [Retrieval](retrieval/)
+We carry out image retrieval on ImageNet-1K, ImageNetV2 and ImageNet-4K, which we created as an out-of-distribution dataset. A detailed description of the retrieval pipeline is provided [here](retrieval/README.md). 
+
+In an attempt to achieve optimal compute-accuracy tradeoff, we carry out **Adaptive Retrieval** by retrieving a $k=$ 200 length neighbors shortlist with lower dimension $D_s$ and reranking with higher dimension $D_r$. We also provide a simple cascading policy to automate the choice of appropriate $D_s$ and $D_r$, which we call **Funnel Retrieval**. We retrieve a shortlist at $D_s$ and then re-rank the shortlist five times while simultaneously increasing $D_r$ (rerank cascade) and decreasing the shortlist length $k$ (shortlist cascade), which resembles a funnel structure. With both of these techniques, we are able to match the Top-1 accuracy (%) of retrieval with $D_s=$ 2048 with 128$\times$ less MFLOPs/Query on ImageNet-1K.
+
 ### ImageNet-4K
 We created the ImageNet-4K dataset by selecting 4,202 classes, non-overlapping with ImageNet1K, from ImageNet-21K with 1,050 or more examples. The train set contains 1,000 examples and
 the query/validation set contains 50 examples per class totalling to ∼4.2M and ∼200K respectively.
