@@ -124,10 +124,10 @@ We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/
 ## [Model Analysis](model_analysis/)
 `cd model_analysis` 
 
-We provide four Jupyter notebooks which contain performance visualization via GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to detailed documentation [here](model_analysis/README.md).  
+We provide four Jupyter notebooks which contain performance visualization via GradCAM images (for checkpoint models), superclass performance, model cascades and oracle upper bound. Please refer to detailed documentation [here](model_analysis/).  
 
 ## [Retrieval](retrieval/)
-We carry out image retrieval on ImageNet-1K with two query sets, ImageNet-1K validation set and ImageNetV2. We also created [ImageNet-4K](imagenet-4k/README.md) to evaluate MRL image retrieval in an out-of-distribution setting, with its validation set used as query set. A detailed description of the retrieval pipeline is provided [here](retrieval/README.md). 
+We carry out image retrieval on ImageNet-1K with two query sets, ImageNet-1K validation set and ImageNetV2. We also created [ImageNet-4K](imagenet-4k) to evaluate MRL image retrieval in an out-of-distribution setting, with its validation set used as query set. A detailed description of the retrieval pipeline is provided [here](retrieval/). 
 
 In an attempt to achieve optimal compute-accuracy tradeoff, we carry out **Adaptive Retrieval** by retrieving a $k=$ 200 length neighbors shortlist with lower dimension $D_s$ and reranking with higher dimension $D_r$. We also provide a simple cascading policy to automate the choice of appropriate $D_s$ and $D_r$, which we call **Funnel Retrieval**. We retrieve a shortlist at $D_s$ and then re-rank the shortlist five times while simultaneously increasing $D_r$ (rerank cascade) and decreasing the shortlist length $k$ (shortlist cascade), which resembles a funnel structure. With both of these techniques, we are able to match the Top-1 accuracy (%) of retrieval with $D_s=$ 2048 with 128$\times$ less MFLOPs/Query on ImageNet-1K.
 
