@@ -99,7 +99,7 @@ By default, we start nesting from rep. size = 8 (i.e. $2^3$). We provide flexibi
 ## [Inference on Trained Models](inference/)
 
 ### Classification performance
-To evaluate our models, run the following command (arguments in brackets are optional). To evaluate the Fixed Feature Baseline, pass `--rep_size <dim>` to evaluate particular representation size. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints, please use `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). `save_*` and `tta` (test time augmentation) flags will be useful for downstream [model analysis](model_analysis).
+To evaluate our models, run the following command (arguments in brackets are optional). To evaluate the Fixed Feature Baseline, pass `--rep_size <dim>` to evaluate particular representation size. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate our uploaded checkpoints (ResNet50), please use `--old_ckpt`. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). They're arranged according to their training routine and are named such that `r50_mrl1_e0_ff2048.pt` corresponds to the model trained with MRL and `r50_mrl0_e0_ff256.pt` corresponds to the model with a rep. size 256 and trained without MRL. `save_*` and `tta` (test time augmentation) flags will be useful for downstream [model analysis](model_analysis).
 
 ```python
 cd inference
