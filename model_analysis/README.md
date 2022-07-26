@@ -9,7 +9,7 @@ python pytorch_inference.py --path <final_weight.pt> --dataset <V2/A/Sketch/R/V1
 --save_softmax --save_gt --save_predictions
 ```
 
-Additionally, for adaptive classification using cascades, use the `--tta` flag in the above script.
+Only adaptive classification using cascades, uses the `--tta` flag.
 
 #### [GradCAM](GradCAM.ipynb)
 This notebook visualizes model attribution for each image. As required preprocessing, we store each image as a torch tensor, arranged class-wise. This notebook illustrates that using smaller representation size for classification can result in model confusion between classes within the same superclass (*e.g.* Rock Python vs Boa Constrictor as in Figure 9.b below).
