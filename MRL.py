@@ -8,7 +8,7 @@ Loss function for Matryoshka Representation Learning
 
 class Matryoshka_CE_Loss(nn.Module):
 	def __init__(self, relative_importance=None, **kwargs):
-		super(NestedCELoss, self).__init__()
+		super(Matryoshka_CE_Loss, self).__init__()
 		self.criterion = nn.CrossEntropyLoss(**kwargs)
 		self.relative_importance= relative_importance
 
