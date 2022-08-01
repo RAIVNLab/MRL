@@ -3,7 +3,7 @@ This code is directly taken from FFCV-Imagenet https://github.com/libffcv/ffcv-i
 and modified for MRL purpose.
 '''
 import sys 
-sys.path.append("../../") # adding root folder to the path
+sys.path.append("../") # adding root folder to the path
 
 import torch as ch
 from torch.cuda.amp import GradScaler
