@@ -21,8 +21,6 @@ BATCH_SIZE = 256
 IMG_SIZE = 256
 CENTER_CROP_SIZE = 224
 NESTING_LIST=[2**i for i in range(3, 12)]
-NESTING_LIST=[8+(204*(i-1)) for i in range(1, 12)]
-print(NESTING_LIST)
 ROOT="../../IMAGENET/" # path to validation datasets
 
 parser=ArgumentParser()

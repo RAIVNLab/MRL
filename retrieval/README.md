@@ -19,7 +19,7 @@ for exact search, which is currently unsupported for HNSW. The $k$-length shortl
 for downstream adaptive retrieval or metric computation as, for example, `neighbors/mrl/exactl2_16dim_2048shortlist_1K.csv`.
 
 ## Adaptive Retrieval
-In an attempt to achieve equivalent performance to shortlisting at higher representation sizes with reduced MFLOPs, we perform adaptive retrieval by, for example, retrieving a shortlist $k = 200$ with rep. size $D_r = 16$ followed by reranking with a higher capacity representation $D_s = 2048$ on ImageNetv2 representations. The reranked k-NN shortlist is saved to disk as `8dim-reranked16_200shortlist_V2_exactl2.csv` as shown in `reranking.ipynb`.
+In an attempt to achieve equivalent performance to shortlisting at higher representation sizes with reduced MFLOPs, we perform adaptive retrieval by, for example, retrieving a shortlist $k = 200$ with rep. size $D_r = 16$ followed by reranking with a higher capacity representation $D_s = 2048$ on ImageNetV2 representations. The reranked k-NN shortlist is saved to disk as `8dim-reranked16_200shortlist_V2_exactl2.csv` as shown in `reranking.ipynb`.
 
 In an attempt to remove supervision in choosing $D_r$ and $D_s$, we utilize **Funnel Retrieval.** Funnel retrieval thins out the initial shortlist by a 
 repeated re-ranking and shortlisting with a series of increasing capacity representations. For example, retrieval with $D_r = 8$ followed by a funnel with Rerank Cascade *= [16, 32, 64, 128, 2048]* and Shortlist Cascade *= [200, 100, 50, 25, 10]* would be saved as  
