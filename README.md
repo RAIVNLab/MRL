@@ -99,7 +99,7 @@ By default, we start nesting from rep. size = 8 (i.e. $2^3$). We provide flexibi
 ## [Inference on Trained Models](inference/)
 
 ### Classification performance
-To evaluate our models, run the following command(s); arguments in the brackets are optional and should be used for desired evaluation. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate the Fixed Feature (FF) Baseline, pass `--rep_size <dim>` flag to evaluate particular representation size, besides the compulsory arguments. For instance, to evaluate FF model with rep. size of 512:
+To evaluate our models, we utilize the `pytorch_inference.py` script; arguments in brackets are optional. This script is also able to evaluate the standard Imagenet-1K validation set (V1). To evaluate the Fixed Feature (FF) Baseline, pass `--rep_size <dim>` flag to evaluate a particular representation size. For example, to evaluate an FF model with rep. size = 512:
 
 ```python
 cd inference
@@ -107,7 +107,7 @@ cd inference
 python pytorch_inference.py --path <final_weight.pt> --dataset <V2/A/Sketch/R/V1> --rep_size 512
 ```
 
-Similarly, to evaluate the MRL models, pass  `--mrl`  flag (add `--efficient` as well in case of MRL-E). Please note that, in this case you don't need to pass the rep_size flag. Following is the general purpose command to evaluate trained models: 
+Similarly, to evaluate MRL models, pass the `--mrl` flag (add `--efficient` for MRL-E). Note that for MRL models, the `rep_size` flag is not required. The general form of the command to evaluate trained models is:
 
 ```python
 cd inference
@@ -117,10 +117,11 @@ python pytorch_inference.py --path <final_weight.pt> --dataset <V2/A/Sketch/R/V1
 [--save_softmax] [--save_gt] [--save_predictions]
 ```
 
-Save flags will be useful for downstream [model analysis](model_analysis). Our script is able to perform "test time augmentation (tta)" during evaluation by passing `--tta` flag. Note that the classification results reported in the paper are without tta, and the only place we use this is for adaptive classification using model cascades. Please refer to [model analysis](model_analysis) for further details.
+The `save_*` flags are useful for downstream [model analysis](model_analysis). Our script is able to perform "test time augmentation (tta)" during evaluation with the `--tta` flag. Note that the classification results reported in the paper are without tta, and tta is only used for adaptive classification using model cascades. Please refer to [model analysis](model_analysis) for further details.
 
 
-Lastly, to evaluate our uploaded checkpoints (ResNet50), please additionally use `--old_ckpt` . Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing). They're arranged according to the training routine and are named such that r50_mrl1_e0_ff2048.pt corresponds to the model trained with MRL (here "e" refers to efficient) and r50_mrl0_e0_ff256.pt corresponds to the model with a rep. size 256 and trained without MRL. In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. For any further help, please run `python pytorch_inference.py --help`.
+Lastly, to evaluate our uploaded checkpoints (ResNet50), please additionally use the `--old_ckpt` flag. Our model checkpoints can be found [here](https://drive.google.com/drive/folders/1IEfJk4xp-sPEKvKn6eKAUzvoRV8ho2vq?usp=sharing), and are arranged according to the training routine. The model naming convention is such that `r50_mrl1_e0_ff2048.pt` corresponds to the model trained with MRL (here "e" refers to efficient) and `r50_mrl0_e0_ff256.pt` corresponds to the model with rep. size = 256 and trained without MRL. In the paper we only consider $rep. size \in  [8, 16, 32, 64, 128, 256, 512, 1024, 2048]$. To evaluate on other rep. sizes, change the variable `NESTING_LIST` in `pytorch_eval.py`. For a detailed description, please run `python pytorch_inference.py --help`.
+
 #### Robustness Datasets
 
 We also evaluate our trained models on four robustness datasets: ImageNetV2/A/R/Sketch. Note that for evaluation, we utilized PyTorch dataloaders. Please refer to their respective repositories for additional documentation and download the datasets in the root directory. 

@@ -28,11 +28,10 @@ parser=ArgumentParser()
 # model args
 parser.add_argument('--efficient', action='store_true', help='Efficient Flag')
 parser.add_argument('--mrl', action='store_true', help='To use MRL')
-parser.add_argument('--rep_size', type=int, default=None, help='Rep. size for fixed feature model')
+parser.add_argument('--rep_size', type=int, default=2048, help='Rep. size for fixed feature model')
 parser.add_argument('--path', type=str, required=True, help='Path to .pt model checkpoint')
 parser.add_argument('--old_ckpt', action='store_true', help='To use our trained checkpoints')
-parser.add_argument('--workers', default=12, help='num workers for dataloader', type=int)
-parser.add_argument('--distributed', default=0, help='is model DistributedDataParallel')
+parser.add_argument('--workers', type=int, default=12, help='num workers for dataloader')
 # dataset/eval args
 parser.add_argument('--tta', action='store_true', help='Test Time Augmentation Flag')
 parser.add_argument('--dataset', type=str, default='V1', help='Benchmarks')
@@ -42,7 +41,7 @@ parser.add_argument('--save_gt', action='store_true', help='To save ground truth
 parser.add_argument('--save_predictions', action='store_true', help='To save predicted labels for model analysis')
 # retrieval args
 parser.add_argument('--retrieval', action='store_true', help='flag for image retrieval array dumps')
-parser.add_argument('--random_sample_dim', default=4202000, help='number of random samples to slice from retrieval database', type=int)
+parser.add_argument('--random_sample_dim', type=int, default=4202000, help='number of random samples to slice from retrieval database')
 parser.add_argument('--retrieval_array_path', default='', help='path to save database and query arrays for retrieval', type=str)
 
 
@@ -148,9 +147,9 @@ else:
 	database_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 	queryset_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=args.workers, shuffle=False)
 
-	config = args.dataset + "_val_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
+	config = args.dataset + "_val_mrl" + str(int(args.mrl)) + "_e" + str(int(args.efficient)) + "_ff" + str(int(args.rep_size))
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, queryset_loader, config, args.distributed, args.dataset, args.random_sample_dim, args.retrieval_array_path)
-	config = args.dataset + "_train_mrl" + str(args.mrl) + "_e" + str(args.efficient) + "_ff" + str(args.rep_size)
+	generate_retrieval_data(model, queryset_loader, config, args.random_sample_dim, args.rep_size, args.retrieval_array_path)
+	config = args.dataset + "_train_mrl" + str(int(args.mrl)) + "_e" + str(int(args.efficient)) + "_ff" + str(int(args.rep_size))
 	print("Retrieval Config: " + config)
-	generate_retrieval_data(model, database_loader, config, args.distributed, args.dataset, args.random_sample_dim, args.retrieval_array_path)
+	generate_retrieval_data(model, database_loader, config, args.random_sample_dim, args.rep_size, args.retrieval_array_path)

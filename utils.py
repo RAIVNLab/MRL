@@ -12,11 +12,11 @@ from imagenet_id import indices_in_1k_a, indices_in_1k_o, indices_in_1k_r
 
 
 def get_ckpt(path):
-	ckpt=path 
+	ckpt=path
 	ckpt = torch.load(ckpt, map_location='cpu')
 	plain_ckpt={}
 	for k in ckpt.keys():
-		plain_ckpt[k[7:]] = ckpt[k] # torch DDP models have a extra wrapper of module., so to remove that... 
+		plain_ckpt[k[7:]] = ckpt[k] # remove the 'module' portion of key if model is Pytorch DDP
 	return plain_ckpt
 
 
@@ -190,7 +190,7 @@ def margin_score(y_pred):
 
 
 '''
-Retrieval utility methods
+Retrieval utility methods.
 '''
 activation = {}
 fwd_pass_x_list = []
@@ -198,7 +198,7 @@ fwd_pass_y_list = []
 
 def get_activation(name):
 	"""
-	Get the activation from an intermediate point in the network
+	Get the activation from an intermediate point in the network.
 	:param name: layer whose activation is to be returned
 	:return: activation of layer
 	"""
@@ -209,7 +209,7 @@ def get_activation(name):
 
 def append_feature_vector_to_list(activation, label, rep_size):
 	"""
-	Append the feature vector to a list to later write to disk
+	Append the feature vector to a list to later write to disk.
 	:param activation: image feature vector from network
 	:param label: ground truth label
 	:param rep_size: representation size to be stored
@@ -221,16 +221,16 @@ def append_feature_vector_to_list(activation, label, rep_size):
 		fwd_pass_x_list.append(x[:rep_size])
 
 
-def dump_feature_vector_array_lists(config_name, random_sample_dim, output_path):
+def dump_feature_vector_array_lists(config_name, rep_size,  random_sample_dim, output_path):
 	"""
-	Save the database and query vector array lists to disk
+	Save the database and query vector array lists to disk.
 	:param config_name: config to specify during file write
+        :param rep_size: representation size for fixed feature model
 	:param random_sample_dim: to write a subset of database if required, e.g. to train an SVM on 100K samples
 	:param output_path: path to dump database and query arrays after inference
 	"""
 
 	# save X (n x 2048), y (n x 1) to disk, where n = num_samples
-	args = parser.parse_args()
 	X_fwd_pass = np.asarray(fwd_pass_x_list, dtype=np.float32)
 	y_fwd_pass = np.asarray(fwd_pass_y_list, dtype=np.float16).reshape(-1,1)
 
@@ -242,42 +242,42 @@ def dump_feature_vector_array_lists(config_name, random_sample_dim, output_path)
 	else:
 		random_X = X_fwd_pass
 		random_y = y_fwd_pass
-		print("Writing %s to disk with dim [%d x %d]" % (str(config_name), X_fwd_pass.shape[0], args.fixed_feature))
+		print("Writing %s to disk with dim [%d x %d]" % (str(config_name)+"_X", X_fwd_pass.shape[0], rep_size))
 
 	np.save(output_path+str(config_name)+'-X.npy', random_X)
 	np.save(output_path+str(config_name)+'-y.npy', random_y)
 
 
-def generate_retrieval_data(model, data_loader, config, distributed, random_sample_dim, rep_size, output_path):
+def generate_retrieval_data(model, data_loader, config, random_sample_dim, rep_size, output_path):
 	"""
-	Iterate over data in dataloader, get feature vector from model inference, and save to array to dump to disk
+	Iterate over data in dataloader, get feature vector from model inference, and save to array to dump to disk.
 	:param model: ResNet50 model loaded from disk
 	:param data_loader: loader for database or query set
 	:param config: name of configuration for writing arrays to disk
-	:param distributed: if model was trained with PyTorch DDP
 	:param random_sample_dim: to write a subset of database if required, e.g. to train an SVM on 100K samples
 	:param rep_size: representation size for fixed feature model
 	:param output_path: path to dump database and query arrays after inference
 	"""
-	if distributed:
-		model.module.avgpool.register_forward_hook(get_activation('avgpool'))
-	else:
-		model.avgpool.register_forward_hook(get_activation('avgpool'))
+	model.eval()
+	model.avgpool.register_forward_hook(get_activation('avgpool'))
 
 	with torch.no_grad():
 		with autocast():
-				for i_batch, images, target in enumerate(data_loader):
-					output = model(images)
-					append_feature_vector_to_list(activation['avgpool'].squeeze(), target, rep_size)
-				dump_feature_vector_array_lists(config, random_sample_dim, output_path)
+				for i_batch, (images, target) in enumerate(data_loader):
+					output = model(images.cuda())
+					append_feature_vector_to_list(activation['avgpool'].squeeze(), target.cuda(), rep_size)
+					if (i_batch) % int(len(data_loader)/20) == 0:
+						print("Finished processing: %f %%" % (i_batch / len(data_loader) * 100))
+				dump_feature_vector_array_lists(config, rep_size, random_sample_dim, output_path)
 
 	# re-initialize empty lists
 	global fwd_pass_x_list
 	global fwd_pass_y_list
 	fwd_pass_x_list = []
+	fwd_pass_y_list = []
 
 '''
-Load pretrained models saved with old notation
+Load pretrained models saved with old notation.
 '''
 class SingleHeadNestedLinear(nn.Linear):
 	"""
