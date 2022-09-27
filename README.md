@@ -146,8 +146,8 @@ In an attempt to achieve optimal compute-accuracy tradeoff, we carry out **Adapt
 If you find this project useful in your research, please consider citing:
 ```
 @inproceedings{kusupati2022matryoshka,
-  title= {Matryoshka Representation Learning},
-  author= {Kusupati, Aditya and Bhatt, Gantavya and Rege, Aniket and Wallingford, Matthew and Sinha, Aditya and Ramanujan, Vivek and Howard-Snyder, William and Chen, Kaifeng and Kakade, Sham and Jain, Prateek and others},
+  title     = {Matryoshka Representation Learning},
+  author    = {Kusupati, Aditya and Bhatt, Gantavya and Rege, Aniket and Wallingford, Matthew and Sinha, Aditya and Ramanujan, Vivek and Howard-Snyder, William and Chen, Kaifeng and Kakade, Sham and Jain, Prateek and others},
   title     = {Matryoshka Representation Learning.},
   booktitle = {Advances in Neural Information Processing Systems},
   month     = {December},
