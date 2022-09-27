@@ -18,9 +18,9 @@ This repository contains code to train, evaluate, and analyze Matryoshka Represe
 
 
 ## Set Up
-Pip install the requirements file in this directory:
+Pip install the requirements file in this directory. Note that a python3 distribution is required:
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ### Preparing the Dataset

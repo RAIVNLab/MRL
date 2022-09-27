@@ -10,6 +10,6 @@ tqdm
 psutil
 webdataset
 torchmetrics
-imagenetv2_pytorch
+git+https://github.com/modestyachts/ImageNetV2_pytorch
 grad-cam
-skimage
+scikit-image
