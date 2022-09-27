@@ -1,4 +1,4 @@
-# [Matryoshka Representations for Adaptive Deployment](https://arxiv.org/abs/2205.13147)
+# [Matryoshka Representation Learning](https://arxiv.org/abs/2205.13147)
 _Aditya Kusupati*, Gantavya Bhatt*, Aniket Rege*, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi_
 
 Learned representations are used in multiple downstream tasks like web-scale search & classification. However, they are flat & rigid -- Information is diffused across dimensions and cannot be adaptively deployed without large post-hoc overhead. We fix both of these issues with **Matryoshka Representation Learning** (MRL)🪆. 
@@ -145,10 +145,12 @@ In an attempt to achieve optimal compute-accuracy tradeoff, we carry out **Adapt
 ## Citation
 If you find this project useful in your research, please consider citing:
 ```
-@article{kusupati2022matryoshka,
-  title={Matryoshka Representations for Adaptive Deployment},
+@inproceedings{kusupati2022matryoshka,
+  title={Matryoshka Representation Learning},
   author={Kusupati, Aditya and Bhatt, Gantavya and Rege, Aniket and Wallingford, Matthew and Sinha, Aditya and Ramanujan, Vivek and Howard-Snyder, William and Chen, Kaifeng and Kakade, Sham and Jain, Prateek and others},
-  journal={arXiv preprint arXiv:2205.13147},
-  year={2022}
+  title     = {Matryoshka Representation Learning.},
+  booktitle = {Advances in Neural Information Processing Systems},
+  month     = {December},
+  year      = {2022},
 }
 ```
