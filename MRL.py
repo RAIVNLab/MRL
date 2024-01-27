@@ -9,22 +9,24 @@ Loss function for Matryoshka Representation Learning
 '''
 
 class Matryoshka_CE_Loss(nn.Module):
-	def __init__(self, relative_importance:List[float]=None, **kwargs):
+	def __init__(self, relative_importance: List[float]=None, **kwargs):
 		super(Matryoshka_CE_Loss, self).__init__()
 		self.criterion = nn.CrossEntropyLoss(**kwargs)
 		# relative importance shape: [G]
-		self.relative_importance= relative_importance
+		self.relative_importance = relative_importance
 
 	def forward(self, output, target):
-		# output shape: [G, N batch size, C number of classes]
+		# output shape: [G granularities, N batch size, C number of classes]
 		# target shape: [N batch size]
 
 		# Calculate losses for each output and stack them. This is still O(N)
 		losses = torch.stack([self.criterion(output_i, target) for output_i in output])
+		
 		# Set relative_importance to 1 if not specified
 		rel_importance = torch.ones_like(losses) if self.relative_importance is None else torch.tensor(self.relative_importance)
+		
 		# Apply relative importance weights
-		weighted_losses = losses * rel_importance
+		weighted_losses = rel_importance * losses
 		return weighted_losses.sum()
 
 class MRL_Linear_Layer(nn.Module):
