@@ -13,11 +13,11 @@ class Matryoshka_CE_Loss(nn.Module):
 		self.relative_importance= relative_importance
 
 	def forward(self, output, target):
-		loss=0
-		N= len(output)
-		for i in range(N):
-			rel = 1. if self.relative_importance is None else self.relative_importance[i] 
-			loss+= rel*self.criterion(output[i], target)
+		if self.relative_importance is None:
+			loss = self.criterion(output, target).sum()
+		else:
+			weighted_losses = self.relative_importance * self.criterion(output, target)
+			loss = weighted_losses.sum()
 		return loss
 
 class MRL_Linear_Layer(nn.Module):
