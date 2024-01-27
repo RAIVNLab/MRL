@@ -2,7 +2,7 @@ terminaltables
 pytorch_pfn_extras
 fastargs
 matplotlib
-sklearn
+scikit-learn
 imgcat
 pandas
 assertpy
