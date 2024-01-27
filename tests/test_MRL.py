@@ -20,7 +20,7 @@ def test_forward():
 
 def test_relative_importance():
     # shape: [G]
-    relative_importance = torch.empty(2, dtype=torch.long).random_(5)
+    relative_importance = [0.5, 0.5]
 
     # Create a Matryoshka_CE_Loss instance with relative_importance
     loss_fn = Matryoshka_CE_Loss(relative_importance=relative_importance)
