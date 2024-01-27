@@ -30,8 +30,8 @@ class Matryoshka_CE_Loss(nn.Module):
 class MRL_Linear_Layer(nn.Module):
 	def __init__(self, nesting_list: List, num_classes=1000, efficient=False, **kwargs):
 		super(MRL_Linear_Layer, self).__init__()
-		self.nesting_list=nesting_list
-		self.num_classes=num_classes # Number of classes for classification
+		self.nesting_list = nesting_list
+		self.num_classes = num_classes # Number of classes for classification
 		self.efficient = efficient
 		if self.efficient:
 			setattr(self, f"nesting_classifier_{0}", nn.Linear(nesting_list[-1], self.num_classes, **kwargs))		
@@ -52,9 +52,9 @@ class MRL_Linear_Layer(nn.Module):
 		for i, num_feat in enumerate(self.nesting_list):
 			if self.efficient:
 				if self.nesting_classifier_0.bias is None:
-					nesting_logits+= (torch.matmul(x[:, :num_feat], (self.nesting_classifier_0.weight[:, :num_feat]).t()), )
+					nesting_logits += (torch.matmul(x[:, :num_feat], (self.nesting_classifier_0.weight[:, :num_feat]).t()), )
 				else:
-					nesting_logits+= (torch.matmul(x[:, :num_feat], (self.nesting_classifier_0.weight[:, :num_feat]).t()) + self.nesting_classifier_0.bias, )
+					nesting_logits += (torch.matmul(x[:, :num_feat], (self.nesting_classifier_0.weight[:, :num_feat]).t()) + self.nesting_classifier_0.bias, )
 			else:
 				nesting_logits +=  (getattr(self, f"nesting_classifier_{i}")(x[:, :num_feat]),)
 
