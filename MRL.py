@@ -19,7 +19,7 @@ class Matryoshka_CE_Loss(nn.Module):
 		# output shape: [G, N batch size, C number of classes]
 		# target shape: [N batch size]
 
-		# Calculate losses for each output and stack them.
+		# Calculate losses for each output and stack them. This is still O(N)
 		losses = torch.stack([self.criterion(output_i, target) for output_i in output])
 		# Set relative_importance to 1 if not specified
 		rel_importance = torch.ones_like(losses) if self.relative_importance is None else torch.tensor(self.relative_importance)
