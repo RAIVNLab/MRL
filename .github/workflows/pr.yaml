@@ -20,14 +20,12 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Install dependencies
+      - name: Install dependencies Run Tests inside virtualenv to ensure pathing is correct
         run: |
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements.dev.txt
-
-      - name: Run Tests inside virtualenv to ensure pathing is correct
-        run: |
           pytest -s
+
