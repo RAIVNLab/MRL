@@ -1,0 +1,37 @@
+name: Pull Request Workflows
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install dependencies Run Tests inside virtualenv to ensure pathing is correct
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements.dev.txt
+
+      - name: Run Pytest
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          ls -lha
+          source .venv/bin/activate
+          pytest -s
+
