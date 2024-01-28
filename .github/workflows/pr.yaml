@@ -32,5 +32,6 @@ jobs:
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           ls -lha
+          source .venv/bin/activate
           pytest -s
 
