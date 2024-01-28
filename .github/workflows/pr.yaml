@@ -22,10 +22,12 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install -r requirements.dev.txt
 
-      - name: Run Tests
+      - name: Run Tests inside virtualenv to ensure pathing is correct
         run: |
           pytest -s

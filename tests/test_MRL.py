@@ -41,6 +41,8 @@ def test_relative_importance():
 
 def test_broadcast():
 	def forward_loop(self, output, target):
+		"""Original implementation of forward() using for-loop
+		"""
 		loss=0
 		N = len(output)
 		for i in range(N):
@@ -50,7 +52,7 @@ def test_broadcast():
 
 	relative_importance = [0.1, 0.9]
 
-	# Broadcast implementation
+	# Current implementation
 	torch.manual_seed(0)
 	loss_fn = Matryoshka_CE_Loss(relative_importance=relative_importance)
 	output_bc = torch.randn(2, 3, 5, requires_grad=True)
@@ -58,7 +60,7 @@ def test_broadcast():
 	target_bc = torch.empty(3, dtype=torch.long).random_(5)
 	loss_broadcast = loss_fn(output_bc, target_bc)
 
-	# Original for loop implementation
+	# Monkeypatching Original for-loop implementation
 	torch.manual_seed(0)
 	Matryoshka_CE_Loss.forward = forward_loop
 	loss_org = Matryoshka_CE_Loss(relative_importance=relative_importance)
