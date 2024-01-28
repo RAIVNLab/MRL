@@ -38,7 +38,10 @@ def test_relative_importance():
     assert loss.dim() == 0
 
 
-def test_broadcast():
+def test_idempotency():
+	"""Tests losses of newer implementations are equal to the original for-loop
+	implementation.
+	"""
 	def forward_loop(self, output, target):
 		"""Original implementation of forward() using for-loop
 		"""
@@ -68,9 +71,9 @@ def test_broadcast():
 	target_org = torch.empty(3, dtype=torch.long).random_(5)
 	loss_loop = loss_org(output_org, target_org)
 
-	# First make sure the inputs are equal
+	# Ensure the inputs to the loss fn are equal
 	assert torch.equal(output_bc, output_org)
 	assert torch.equal(target_bc, target_org)
 
-	# Check if outputs are equal
+	# Ensure the outputs are mostly equal
 	assert torch.allclose(loss_loop, loss_broadcast)
