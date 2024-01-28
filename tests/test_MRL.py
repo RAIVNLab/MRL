@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 
 from MRL import Matryoshka_CE_Loss
 
